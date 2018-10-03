@@ -37,18 +37,13 @@ public class MainActivity extends AppCompatActivity {
 
 		gauge1.setEndValue(10000);
 		gauge2.setEndValue(700);
-
-		text1  = findViewById(R.id.textView1);
-		text2  = findViewById(R.id.textView2);
-		text1.setText(Integer.toString(gauge1.getValue()));
-		text2.setText(Integer.toString(gauge2.getValue()));
-    	text2.setText(Integer.toString(gauge2.getValue()));
     	
 		button.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				new Thread() {
+
+				/*new Thread() {
 			        public void run() {
 			        	for (i=0;i<100;i++) {
 			                try {
@@ -68,21 +63,11 @@ public class MainActivity extends AppCompatActivity {
 			                }
 			            }
 			        }
-			    }.start();
-
+			    }.start();*/
+				gauge1.setPointSize(gauge1.getPointSize() + 1);
+				gauge1.invalidate();
 			}
 
 		});
 	}
-	
-	@Override
-	public void onAttachedToWindow() {
-		super.onAttachedToWindow();
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-	}
-	
 }

@@ -21,7 +21,7 @@
 
     <pl.pawelkleczkowski.customgauge.CustomGauge
         android:id="@+id/gauge1"
-        android:layout_width="200dp"
+        android:layout_width="100dp"
         android:layout_height="200dp"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/button"
@@ -31,14 +31,16 @@
         android:paddingTop="20dp"
         app:gaugePointStartColor="@color/md_red_500"
         app:gaugePointEndColor="@color/md_red_500"
-        app:gaugePointSize="6"
+        app:gaugePointSize="1"
         app:gaugeStartAngle="135"
         app:gaugeStrokeCap="ROUND"
         app:gaugeStrokeColor="@color/md_grey_400"
         app:gaugeStrokeWidth="10dp"
         app:gaugeStartValue="0"
         app:gaugeEndValue="1000"
-        app:gaugeSweepAngle="270" />
+        app:gaugeSweepAngle="270"
+        app:gaugePointStrokeWidth="20dp"
+        app:gaugeAnimateValue="true"/>
 
     <TextView
         android:id="@+id/textView1"
@@ -49,7 +51,8 @@
         android:layout_marginBottom="18dp"
         android:text="256"
         android:textSize="30dp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:visibility="gone"/>
 
     <pl.pawelkleczkowski.customgauge.CustomGauge
         android:id="@+id/gauge2"
@@ -69,7 +72,9 @@
         app:gaugeStrokeCap="ROUND"
         app:gaugeStrokeColor="@color/md_grey_400"
         app:gaugeStrokeWidth="10dp"
-        app:gaugeSweepAngle="270" />
+        app:gaugeSweepAngle="270"
+        app:gaugeAnimateValue="true"
+        app:gaugePointStrokeWidth="20dp"/>
     
     <pl.pawelkleczkowski.customgauge.CustomGauge
         android:id="@+id/gauge3"
@@ -108,6 +113,7 @@
         android:layout_marginBottom="48dp"
         android:text="0"
         android:textSize="30dp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:visibility="gone"/>
 
 </RelativeLayout>
