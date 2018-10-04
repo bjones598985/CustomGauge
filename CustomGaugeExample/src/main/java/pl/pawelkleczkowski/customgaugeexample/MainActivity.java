@@ -35,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
 		gauge2 = findViewById(R.id.gauge2);
 		gauge3 = findViewById(R.id.gauge3);
 
-		gauge1.setEndValue(10000);
-		gauge2.setEndValue(700);
+		//gauge1.setEndValue(10000);
+		//gauge2.setEndValue(700);
     	
 		button.setOnClickListener(new OnClickListener() {
 			
@@ -64,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
 			            }
 			        }
 			    }.start();*/
-				gauge1.setPointSize(gauge1.getPointSize() + 1);
-				gauge1.invalidate();
+				//gauge1.setPointSize(gauge1.getPointSize() + 1);
+				//gauge1.invalidate();
 			}
 
 		});

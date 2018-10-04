@@ -1,5 +1,6 @@
 package pl.pawelkleczkowski.customgauge;
 
+import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -14,6 +15,10 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.BaseInterpolator;
+import android.view.animation.BounceInterpolator;
+
+import java.sql.Time;
 
 public class CustomGauge extends View {
 
@@ -32,6 +37,7 @@ public class CustomGauge extends View {
     private int mStartValue;
     private int mEndValue;
     private int mValue;
+    private int mTargetValue;
     private double mPointAngle;//equal to the number of degrees of one increment/decrement in value
     private int mPoint;//conversion of the value into the degrees
     private int mPointSize;//the length of the initial point
@@ -47,6 +53,9 @@ public class CustomGauge extends View {
     private boolean mAnimateValue;
 
     private ValueAnimator animator;
+    //default interpolator
+    private TimeInterpolator interpolator = new AccelerateDecelerateInterpolator();
+
     public CustomGauge(Context context) {
         super(context);
         init();
@@ -135,7 +144,7 @@ public class CustomGauge extends View {
         if (isAnimateValue()) {
             animator = ValueAnimator.ofFloat(1f);
             animator.setDuration(5000);
-            animator.setInterpolator(new AccelerateDecelerateInterpolator());
+            animator.setInterpolator(interpolator);
             animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
@@ -149,21 +158,33 @@ public class CustomGauge extends View {
     }
 
     @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        // Account for padding
+        float xpad = (float)(getPaddingLeft() + getPaddingRight());
+        float ypad = (float)(getPaddingTop() + getPaddingBottom());
+
+        //get the larger of the stroke paddings and halve it
+        float strokePadding = getStrokeWidth() > getPointStrokeWidth() ? getStrokeWidth() : getPointStrokeWidth();
+        float innerRectSize = 0, rectLeft = 0, rectRight = 0, rectTop = 0, rectBottom = 0;
+        if (getWidth() < getHeight()) {
+            innerRectSize = getWidth() - xpad;
+            rectLeft = getPaddingLeft() + strokePadding;
+            rectRight = getWidth() - getPaddingRight() - strokePadding;
+            rectTop = (getHeight() / 2)  - (innerRectSize / 2) + strokePadding;
+            rectBottom = (getHeight() / 2) + (innerRectSize / 2) - strokePadding;
+        } else {
+            innerRectSize = getHeight() - ypad;
+            rectTop = getPaddingTop() + strokePadding;
+            rectBottom = getHeight() - getPaddingBottom() - strokePadding;
+            rectLeft = (getWidth() / 2)  - (innerRectSize / 2) + strokePadding;
+            rectRight = (getWidth() / 2) + (innerRectSize / 2) - strokePadding;
+        }
+        mRect.set(rectLeft, rectTop, rectRight, rectBottom);
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        float padding = getStrokeWidth();
-        float size = getWidth()<getHeight() ? getWidth() : getHeight();
-        float width = size - (2*padding);
-        float height = size - (2*padding);
-//        float radius = (width > height ? width/2 : height/2);
-        float radius = (width < height ? width / 2 : height / 2);
-        float rectLeft = (getWidth() - (2 * padding)) / 2 - radius + padding;
-        float rectTop = (getHeight() - (2  *padding)) / 2 - radius + padding;
-        float rectRight = (getWidth() - (2 * padding)) / 2 - radius + padding + width;
-        float rectBottom = (getHeight() - (2 * padding)) / 2 - radius + padding + height;
-
-        mRect.set(rectLeft, rectTop, rectRight, rectBottom);
-
         mBasePaint.setColor(mStrokeColor);
         mBasePaint.setShader(null);
         canvas.drawArc(mRect, mStartAngle, mSweepAngle, false, mBasePaint);
@@ -195,30 +216,50 @@ public class CustomGauge extends View {
                 canvas.drawArc(mRect, mStartAngle + i* mDividerStepAngle, mDividerSize, false, mBasePaint);
             }
         }
-        if (mDisplayValue) {
+        if (getDisplayValue()) {
             int xPos = canvas.getWidth() / 2;
             int yPos = canvas.getHeight() / 2;
             canvas.drawText(String.valueOf(getValue()), xPos, yPos, mTextPaint);
         }
     }
 
-    public void setValue(int value) {
+    public CustomGauge setTargetValue(int target) {
+        mTargetValue = target;
+        return this;
+    }
+
+    public int getTargetValue() {
+        return mTargetValue;
+    }
+
+    private void setValue(int value) {
         mValue = value;
         mPoint = (int) (mStartAngle + (mValue-mStartValue) * mPointAngle);
         invalidate();
     }
 
-    public int getValue() {
+    private int getValue() {
         return mValue;
     }
+
+    public CustomGauge setInterpolator (TimeInterpolator interpolator) {
+        this.interpolator = interpolator;
+        return this;
+    }
+
+    public TimeInterpolator getInterpolator () {
+        return interpolator;
+    }
+
 
     @SuppressWarnings("unused")
     public float getStrokeWidth() {
         return mBaseStrokeWidth;
     }
 
-    public void setStrokeWidth(float strokeWidth) {
+    public CustomGauge setStrokeWidth(float strokeWidth) {
         mBaseStrokeWidth = strokeWidth;
+        return this;
     }
 
     @SuppressWarnings("unused")
@@ -226,8 +267,9 @@ public class CustomGauge extends View {
         return mStrokeColor;
     }
 
-    public void setStrokeColor(int strokeColor) {
+    public CustomGauge setStrokeColor(int strokeColor) {
         mStrokeColor = strokeColor;
+        return this;
     }
 
     @SuppressWarnings("unused")
@@ -235,8 +277,9 @@ public class CustomGauge extends View {
         return mStrokeCap;
     }
 
-    public void setStrokeCap(String strokeCap) {
+    public CustomGauge setStrokeCap(String strokeCap) {
         mStrokeCap = strokeCap;
+        return this;
     }
 
     @SuppressWarnings("unused")
@@ -244,8 +287,9 @@ public class CustomGauge extends View {
         return mStartAngle;
     }
 
-    public void setStartAngle(int startAngle) {
+    public CustomGauge setStartAngle(int startAngle) {
         mStartAngle = startAngle;
+        return this;
     }
 
     @SuppressWarnings("unused")
@@ -253,8 +297,9 @@ public class CustomGauge extends View {
         return mSweepAngle;
     }
 
-    public void setSweepAngle(int sweepAngle) {
+    public CustomGauge setSweepAngle(int sweepAngle) {
         mSweepAngle = sweepAngle;
+        return this;
     }
 
     @SuppressWarnings("unused")
@@ -262,8 +307,9 @@ public class CustomGauge extends View {
         return mStartValue;
     }
 
-    public void setStartValue(int startValue) {
+    public CustomGauge setStartValue(int startValue) {
         mStartValue = startValue;
+        return this;
     }
 
     @SuppressWarnings("unused")
@@ -282,8 +328,9 @@ public class CustomGauge extends View {
         return mPointSize;
     }
 
-    public void setPointSize(int pointSize) {
+    public CustomGauge setPointSize(int pointSize) {
         mPointSize = pointSize;
+        return this;
     }
 
     @SuppressWarnings("unused")
@@ -291,8 +338,9 @@ public class CustomGauge extends View {
         return mPointStartColor;
     }
 
-    public void setPointStartColor(int pointStartColor) {
+    public CustomGauge setPointStartColor(int pointStartColor) {
         mPointStartColor = pointStartColor;
+        return this;
     }
 
     @SuppressWarnings("unused")
@@ -300,8 +348,9 @@ public class CustomGauge extends View {
         return mPointEndColor;
     }
 
-    public void setPointEndColor(int pointEndColor) {
+    public CustomGauge setPointEndColor(int pointEndColor) {
         mPointEndColor = pointEndColor;
+        return this;
     }
 
     @SuppressWarnings("unused")
@@ -309,8 +358,9 @@ public class CustomGauge extends View {
         return mDividerColor;
     }
 
-    public void setDividerColor(int dividerColor) {
+    public CustomGauge setDividerColor(int dividerColor) {
         mDividerColor = dividerColor;
+        return this;
     }
 
     @SuppressWarnings("unused")
@@ -318,8 +368,9 @@ public class CustomGauge extends View {
         return mDividerDrawFirst;
     }
 
-    public void setDividerDrawFirst(boolean dividerDrawFirst) {
+    public CustomGauge setDividerDrawFirst(boolean dividerDrawFirst) {
         mDividerDrawFirst = dividerDrawFirst;
+        return this;
     }
 
     @SuppressWarnings("unused")
@@ -327,32 +378,36 @@ public class CustomGauge extends View {
         return mDividerDrawLast;
     }
 
-    public void setDividerDrawLast(boolean dividerDrawLast) {
+    public CustomGauge setDividerDrawLast(boolean dividerDrawLast) {
         mDividerDrawLast = dividerDrawLast;
+        return this;
     }
 
     public float getPointStrokeWidth() {
         return mPointStrokeWidth;
     }
 
-    public void setPointStrokeWidth(float mPointStrokeWidth) {
-        this.mPointStrokeWidth = mPointStrokeWidth;
+    public CustomGauge setPointStrokeWidth(float PointStrokeWidth) {
+        mPointStrokeWidth = PointStrokeWidth;
+        return this;
     }
 
-    public boolean isDisplayValue() {
+    public boolean getDisplayValue() {
         return mDisplayValue;
     }
 
-    public void setDisplayValue(boolean mDisplayValue) {
+    public CustomGauge setDisplayValue(boolean mDisplayValue) {
         this.mDisplayValue = mDisplayValue;
+        return this;
     }
 
     public boolean isAnimateValue() {
         return mAnimateValue;
     }
 
-    public void setAnimateValue(boolean mAnimateValue) {
+    public CustomGauge setAnimateValue(boolean mAnimateValue) {
         this.mAnimateValue = mAnimateValue;
+        return this;
     }
 
     @Override
