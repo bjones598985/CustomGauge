@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.BounceInterpolator;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -42,7 +43,10 @@ public class MainActivity extends AppCompatActivity {
 			
 			@Override
 			public void onClick(View v) {
-
+				gauge1.getAnimator().setDuration(3000L).setInterpolator(new BounceInterpolator());
+				gauge1.runAnimation();
+				gauge2.getAnimator().setDuration(3000L).setInterpolator(new BounceInterpolator());
+				gauge2.runAnimation();
 				/*new Thread() {
 			        public void run() {
 			        	for (i=0;i<100;i++) {

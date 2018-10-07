@@ -17,7 +17,7 @@
         <attr name="gaugeDividerDrawFirst" format="boolean" />
         <attr name="gaugeDividerDrawLast" format="boolean" />
         <attr name="gaugeDisplayValue" format="boolean"/>
-        <attr name="gaugeAnimateValue" format="boolean"/>
         <attr name="gaugePointStrokeWidth" format="dimension" />
+        <attr name="gaugeTargetValue" format="integer"/>
     </declare-styleable>
 </resources>
